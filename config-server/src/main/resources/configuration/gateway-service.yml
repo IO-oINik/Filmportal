@@ -1,0 +1,19 @@
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          lower-case-service-id: true
+          enabled: true
+      routes:
+        - id: film-service
+          uri: lb://FILM-SERVICE
+          predicates:
+            - Path=/api/v1/person/**,/api/v1/film/**,/api/v1/age-limit/**,/api/v1/country/**,/api/v1/genre/**,/api/v1/person/**
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/v1/user/**
+
+server:
+  port: 8222

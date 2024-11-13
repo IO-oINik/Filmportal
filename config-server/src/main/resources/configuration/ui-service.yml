@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+application:
+  config:
+    urls:
+      genre-url: http://localhost:8222/api/v1/genre
+      age-limit-url: http://localhost:8222/api/v1/age-limit
+      country-url: http://localhost:8222/api/v1/country
+      film-url: http://localhost:8222/api/v1/film
+      person-url: http://localhost:8222/api/v1/person
+      user-url: http://localhost:8222/api/v1/user
