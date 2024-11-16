@@ -5,6 +5,7 @@ services:
     environment:
       POSTGRES_USER: nikita
       POSTGRES_PASSWORD: nikita
+      POSTGRES_DB: users
     ports:
       - 5433:5432
     networks:
@@ -15,6 +16,7 @@ services:
     container_name: db-films
     image: postgres
     environment:
+      POSTGRES_DB: films
       POSTGRES_USER: nikita
       POSTGRES_PASSWORD: nikita
     ports:
@@ -27,6 +29,7 @@ services:
     container_name: db-reviews
     image: postgres
     environment:
+      POSTGRES_DB: reviews
       POSTGRES_USER: nikita
       POSTGRES_PASSWORD: nikita
     ports:
@@ -35,36 +38,7 @@ services:
       - microservices-net
     restart: unless-stopped
 
-  keycloak:
-    image: bitnami/keycloak:latest
-    environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
-      - KEYCLOAK_DATABASE_VENDOR=postgresql
-      - KEYCLOAK_DATABASE_USER=keycloak
-      - KEYCLOAK_DATABASE_PASSWORD=keycloak
-      - KEYCLOAK_DATABASE_NAME=keycloak
-      - KEYCLOAK_DATABASE_HOST=postgres-keycloak
-    ports:
-      - "8443:8080"
-    depends_on:
-      - postgres-keycloak
-    networks:
-      - keycloak-net
-
-  postgres-keycloak:
-    image: postgres
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak
-    networks:
-      - keycloak-net
-    restart: unless-stopped
-
 
 networks:
   microservices-net:
-    driver: bridge
-  keycloak-net:
     driver: bridge
