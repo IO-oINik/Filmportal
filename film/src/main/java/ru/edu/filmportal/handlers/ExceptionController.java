@@ -1,4 +1,4 @@
-package ru.edu.filmportal.controllers;
+package ru.edu.filmportal.handlers;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
