@@ -7,7 +7,6 @@ public record UserEditRequest(
         String name,
         String surname,
         String nickname,
-        String email,
-        Role role
+        String email
 ) {
 }

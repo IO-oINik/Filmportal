@@ -14,14 +14,15 @@ import java.util.stream.Collectors;
 public class UserMapper {
 
     public UserResponse toUserResponse(User user) {
-        return new UserResponse(user.getId(),
+        return new UserResponse(
+                user.getId(),
                 user.getName(),
                 user.getSurname(),
                 user.getNickname(),
                 user.getEmail(),
-                user.getHashPassword(),
                 user.getRole(),
-                user.getDataOfCreation());
+                user.getDateOfCreation(),
+                user.getDateOfModified());
     }
     public User toUser(UserCreateRequest userRequest) {
         return User.builder()
@@ -29,8 +30,6 @@ public class UserMapper {
                 .surname(userRequest.surname())
                 .nickname(userRequest.nickname())
                 .email(userRequest.email())
-                .hashPassword(userRequest.hashPassword())
-                .role(userRequest.role())
                 .build();
     }
 }

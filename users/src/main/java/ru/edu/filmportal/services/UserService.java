@@ -3,22 +3,23 @@ package ru.edu.filmportal.services;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.edu.filmportal.mappers.UserMapper;
+import ru.edu.filmportal.models.database.Role;
 import ru.edu.filmportal.models.request.UserCreateRequest;
 import ru.edu.filmportal.models.request.UserEditRequest;
 import ru.edu.filmportal.models.response.UserResponse;
 import ru.edu.filmportal.repositories.UserRepository;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
     public List<UserResponse> findAll() {
         return userRepository.findAll().stream().map(mapper::toUserResponse).toList();
@@ -44,6 +45,8 @@ public class UserService {
             throw new EntityExistsException("User with the email: " + request.email() + " already exists");
         }
         var user = mapper.toUser(request);
+        user.setHashPassword(passwordEncoder.encode(request.password()));
+        user.setRole(Role.USER);
         return mapper.toUserResponse(userRepository.save(user));
     }
 

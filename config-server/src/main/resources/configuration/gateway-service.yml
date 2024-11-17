@@ -10,10 +10,14 @@ spring:
           uri: lb://FILM-SERVICE
           predicates:
             - Path=/api/v1/person/**,/api/v1/film/**,/api/v1/age-limit/**,/api/v1/country/**,/api/v1/genre/**,/api/v1/person/**
+          filters:
+            - name: JwtForwardingFilter
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
             - Path=/api/v1/user/**
+          filters:
+            - name: JwtForwardingFilter
 
 server:
   port: 8222

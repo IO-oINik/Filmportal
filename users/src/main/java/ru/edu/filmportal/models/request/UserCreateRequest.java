@@ -4,9 +4,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import ru.edu.filmportal.models.database.Role;
-
-import java.util.Set;
 
 public record UserCreateRequest(
         @NotNull(message = "User name is required")
@@ -29,7 +26,6 @@ public record UserCreateRequest(
         @NotNull(message = "User password is required")
         @NotBlank(message = "User password can not blank")
         @NotEmpty(message = "User password can not empty")
-        String hashPassword,
-        Role role
+        String password
 ) {
 }
