@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import ru.edu.filmportal.exceptions.InvalidCredentialsException;
-import ru.edu.filmportal.exceptions.InvalidToken;
+import ru.edu.filmportal.exceptions.InvalidTokenException;
 import ru.edu.filmportal.models.response.MessageResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @RestController
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({InvalidCredentialsException.class, InvalidToken.class})
+    @ExceptionHandler({InvalidCredentialsException.class, InvalidTokenException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public MessageResponse handleCredentialsException(RuntimeException ex) {
         return new MessageResponse(ex.getMessage());

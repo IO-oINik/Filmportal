@@ -18,6 +18,7 @@ import java.util.Date;
 @Table(name = "token")
 public class Token {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column(nullable = false)
     private String token;

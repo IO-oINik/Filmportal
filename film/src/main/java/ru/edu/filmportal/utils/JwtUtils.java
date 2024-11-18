@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
@@ -15,7 +16,6 @@ import java.util.function.Function;
 public class JwtUtils {
     @Value("${jwt.secret-key}")
     private String SECRET_KEY;
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 часов
 
     public Optional<String> extractJwt(String authorizationHeader) {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -43,15 +43,5 @@ public class JwtUtils {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    public String generateToken(String username, Map<String, String> claims) {
-        return Jwts.builder()
-                .subject(username)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(getSignInKey())
-                .claims(claims)
-                .compact();
     }
 }

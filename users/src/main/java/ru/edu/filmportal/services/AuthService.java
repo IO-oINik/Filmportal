@@ -1,5 +1,6 @@
 package ru.edu.filmportal.services;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,15 +32,24 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid credentials");
         }
 
-        if(user.getToken() != null && jwtUtils.isTokenValid(user.getToken().getToken(), user.getNickname())) {
-            return user.getToken().getToken();
+        String tokenString = "";
+        try {
+            if (user.getToken() != null && jwtUtils.extractUsername(user.getToken().getToken()).equals(user.getNickname())) {
+                tokenString = user.getToken().getToken();
+            } else {
+                tokenString = jwtUtils.generateToken(user.getNickname(), Collections.singletonMap("ROLE", user.getRole().toString()));
+                Token token = tokenRepository.save(new Token(tokenString));
+
+                user.setToken(token);
+                userRepository.save(user);
+            }
+        } catch (ExpiredJwtException e) {
+            tokenString = jwtUtils.generateToken(user.getNickname(), Collections.singletonMap("ROLE", user.getRole().toString()));
+            Token token = tokenRepository.save(new Token(tokenString));
+
+            user.setToken(token);
+            userRepository.save(user);
         }
-
-        String tokenString = jwtUtils.generateToken(user.getNickname(), Collections.singletonMap("ROLE", user.getRole().toString()));
-        Token token = tokenRepository.save(new Token(tokenString));
-
-        user.setToken(token);
-        userRepository.save(user);
 
         return tokenString;
     }

@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.edu.filmportal.exceptions.InvalidToken;
+import ru.edu.filmportal.exceptions.InvalidTokenException;
 import ru.edu.filmportal.models.request.AuthRequest;
 import ru.edu.filmportal.models.request.UserCreateRequest;
 import ru.edu.filmportal.models.response.UserResponse;
@@ -35,7 +35,7 @@ public class AuthController {
     @GetMapping("/token/disable")
     @Operation(summary = "Инвалидация токена (выход из системы)")
     public void disableToken(@RequestHeader("Authorization") String authorizationHeader) {
-        String token = jwtUtils.extractJwt(authorizationHeader).orElseThrow(() -> new InvalidToken("Token is missing"));
+        String token = jwtUtils.extractJwt(authorizationHeader).orElseThrow(() -> new InvalidTokenException("Token is missing"));
         authService.disableToken(token);
     }
 }
