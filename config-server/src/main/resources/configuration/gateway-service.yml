@@ -19,13 +19,5 @@ spring:
           filters:
             - name: JwtForwardingFilter
 
-springdoc:
-  api-docs:
-    servers:
-      - url: http://localhost:8081
-        description: User service
-      - url: http://localhost:8082
-        description: Film service
-
 server:
   port: 8222

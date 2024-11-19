@@ -1,6 +1,5 @@
 package ru.edu.filmportal.models.database;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
