@@ -4,12 +4,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import org.vaadin.crudui.crud.CrudOperation;
+import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import ru.edu.ui.models.responses.CountryResponse;
 import ru.edu.ui.services.CountryService;
 
 @Route(value = "country", layout = MainLayout.class)
-@RolesAllowed(value = {"ADMIN"})
 public class CountryView extends VerticalLayout {
 
     public CountryView(CountryService countryService) {
@@ -24,6 +24,13 @@ public class CountryView extends VerticalLayout {
 //        crud.getCrudFormFactory().setUseBeanValidation(true);
         crud.getCrudFormFactory().setVisibleProperties("title");
         crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "title");
+        crud.getCrudFormFactory().setErrorListener(e -> {
+            if(CrudOperationException.class.isAssignableFrom(e.getClass())) {
+                crud.showNotification(e.getMessage());
+            } else {
+                crud.showNotification("Ошибка");
+            }
+        });
 
         // layout configuration
         setSizeFull();

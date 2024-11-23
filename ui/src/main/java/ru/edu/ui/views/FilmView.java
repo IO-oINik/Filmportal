@@ -10,6 +10,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
+import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 import ru.edu.ui.models.responses.*;
@@ -19,7 +20,6 @@ import java.util.stream.Stream;
 
 
 @Route(value = "film", layout = MainLayout.class)
-@RolesAllowed(value = {"ADMIN"})
 public class FilmView extends VerticalLayout {
 
     private final GenreService genreService;
@@ -109,6 +109,13 @@ public class FilmView extends VerticalLayout {
             comboBox.setItemLabelGenerator(PersonResponse::toString);
             comboBox.setSelectedItemsOnTop(true);
             return comboBox;
+        });
+        crud.getCrudFormFactory().setErrorListener(e -> {
+            if(CrudOperationException.class.isAssignableFrom(e.getClass())) {
+                crud.showNotification(e.getMessage());
+            } else {
+                crud.showNotification("Ошибка");
+            }
         });
 
         // layout configuration

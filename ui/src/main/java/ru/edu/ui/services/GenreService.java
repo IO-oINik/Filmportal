@@ -1,16 +1,17 @@
 package ru.edu.ui.services;
 
+import com.vaadin.flow.server.VaadinSession;
 import feign.FeignException;
+import ru.edu.ui.exceptions.BadRequestException;
+import ru.edu.ui.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.vaadin.crudui.crud.CrudOperationException;
 import ru.edu.ui.clients.GenreClient;
+import ru.edu.ui.exceptions.AuthException;
 import ru.edu.ui.models.requests.GenreRequest;
 import ru.edu.ui.models.responses.GenreResponse;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
@@ -19,40 +20,64 @@ public class GenreService {
     private final GenreClient genreClient;
 
     public List<GenreResponse> findAll() {
-        return genreClient.findAll();
+        String token = (String) VaadinSession.getCurrent().getAttribute("token");
+        try {
+            return genreClient.findAll("Bearer " + token);
+        } catch (AuthException e) {
+            throw new CrudOperationException("Войдите или зарегистрируйтесь");
+        } catch (NotFoundException e) {
+            throw new CrudOperationException("Страница не найдена");
+        } catch (BadRequestException e) {
+            throw new CrudOperationException(e.getMessage());
+        } catch (FeignException e) {
+            throw new CrudOperationException("Ошибка сервера");
+        }
     }
 
     public GenreResponse create(GenreResponse genreResponse) {
         var genreRequest = new GenreRequest(genreResponse.getTitle());
+        String token = (String) VaadinSession.getCurrent().getAttribute("token");
         try {
-            return genreClient.create(genreRequest);
-        } catch (FeignException.FeignClientException e) {
-            String message = new String(e.responseBody().orElseThrow(() -> new CrudOperationException("Неизвестная ошибка.\nПовтрите попытку позже")).array(), StandardCharsets.UTF_8);
-            try {
-                JSONObject json = new JSONObject(message);
-                throw new CrudOperationException(json.getString("message"));
-            } catch (JSONException e1) {
-                throw new CrudOperationException("Неизвестная ошибка.\nПовтрите попытку позже");
-            }
+            return genreClient.create(genreRequest, "Bearer " + token);
+        } catch (AuthException e) {
+            throw new CrudOperationException("Войдите или зарегистрируйтесь");
+        } catch (NotFoundException e) {
+            throw new CrudOperationException("Страница не найдена");
+        } catch (BadRequestException e) {
+            throw new CrudOperationException(e.getMessage());
+        } catch (FeignException e) {
+            throw new CrudOperationException("Ошибка сервера");
         }
     }
 
     public GenreResponse edit(GenreResponse genreResponse) {
         var genreRequest = new GenreRequest(genreResponse.getTitle());
+        String token = (String) VaadinSession.getCurrent().getAttribute("token");
         try {
-            return genreClient.edit(genreResponse.getId(), genreRequest);
-        } catch (FeignException.FeignClientException e) {
-            String message = new String(e.responseBody().orElseThrow(() -> new CrudOperationException("Неизвестная ошибка.\nПовтрите попытку позже")).array(), StandardCharsets.UTF_8);
-            try {
-                JSONObject json = new JSONObject(message);
-                throw new CrudOperationException(json.getString("message"));
-            } catch (JSONException e1) {
-                throw new CrudOperationException("Неизвестная ошибка.\nПовтрите попытку позже");
-            }
+            return genreClient.edit(genreResponse.getId(), genreRequest, "Bearer " + token);
+        } catch (AuthException e) {
+            throw new CrudOperationException("Войдите или зарегистрируйтесь");
+        } catch (NotFoundException e) {
+            throw new CrudOperationException("Страница не найдена");
+        } catch (BadRequestException e) {
+            throw new CrudOperationException(e.getMessage());
+        } catch (FeignException e) {
+            throw new CrudOperationException("Ошибка сервера");
         }
     }
 
     public void delete(GenreResponse genreResponse) {
-        genreClient.delete(genreResponse.getId());
+        String token = (String) VaadinSession.getCurrent().getAttribute("token");
+        try {
+            genreClient.delete(genreResponse.getId(), "Bearer " + token);
+        } catch (AuthException e) {
+            throw new CrudOperationException("Войдите или зарегистрируйтесь");
+        } catch (NotFoundException e) {
+            throw new CrudOperationException("Страница не найдена");
+        } catch (BadRequestException e) {
+            throw new CrudOperationException(e.getMessage());
+        } catch (FeignException e) {
+            throw new CrudOperationException("Ошибка сервера");
+        }
     }
 }

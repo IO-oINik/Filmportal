@@ -1,12 +1,14 @@
 package ru.edu.ui.services;
 
+import com.vaadin.flow.server.VaadinSession;
 import feign.FeignException;
+import ru.edu.ui.exceptions.BadRequestException;
+import ru.edu.ui.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.vaadin.crudui.crud.CrudOperationException;
 import ru.edu.ui.clients.FilmClient;
+import ru.edu.ui.exceptions.AuthException;
 import ru.edu.ui.models.requests.FilmRequest;
 import ru.edu.ui.models.responses.CountryResponse;
 import ru.edu.ui.models.responses.FilmResponse;
@@ -22,7 +24,18 @@ public class FilmService {
     private final FilmClient filmClient;
 
     public List<FilmResponse> findAll() {
-        return filmClient.findAll();
+        String token = (String) VaadinSession.getCurrent().getAttribute("token");
+        try {
+            return filmClient.findAll("Bearer " + token);
+        } catch (AuthException e) {
+            throw new CrudOperationException("Войдите или зарегистрируйтесь");
+        } catch (NotFoundException e) {
+            throw new CrudOperationException("Страница не найдена");
+        } catch (BadRequestException e) {
+            throw new CrudOperationException(e.getMessage());
+        } catch (FeignException e) {
+            throw new CrudOperationException("Ошибка сервера");
+        }
     }
 
     public FilmResponse create(FilmResponse filmResponse) {
@@ -47,20 +60,18 @@ public class FilmService {
                 filmResponse.getScreenwriters().stream().mapToLong(PersonResponse::getId).boxed().toList(),
                 filmResponse.getProducers().stream().mapToLong(PersonResponse::getId).boxed().toList(),
                 filmResponse.getActors().stream().mapToLong(PersonResponse::getId).boxed().toList());
+        String token = (String) VaadinSession.getCurrent().getAttribute("token");
         try {
-            return filmClient.create(filmRequest);
-        } catch (FeignException.FeignClientException e) {
-            String message = new String(e.responseBody().orElseThrow(() -> new CrudOperationException("Неизвестная ошибка.\nПовтрите попытку позже")).array(), StandardCharsets.UTF_8);
-            try {
-                JSONObject json = new JSONObject(message);
-                throw new CrudOperationException(json.getString("message"));
-            } catch (JSONException e1) {
-                throw new CrudOperationException("Неизвестная ошибка.\nПовтрите попытку позже");
-            }
+            return filmClient.create(filmRequest, "Bearer " + token);
+        } catch (AuthException e) {
+            throw new CrudOperationException("Войдите или зарегистрируйтесь");
+        } catch (NotFoundException e) {
+            throw new CrudOperationException("Страница не найдена");
+        } catch (BadRequestException e) {
+            throw new CrudOperationException(e.getMessage());
         } catch (FeignException e) {
-            throw new CrudOperationException("Неизвестная ошибка.\nПовтрите попытку позже");
+            throw new CrudOperationException("Ошибка сервера");
         }
-
     }
 
     public FilmResponse edit(FilmResponse filmResponse) {
@@ -85,22 +96,32 @@ public class FilmService {
                 filmResponse.getScreenwriters().stream().mapToLong(PersonResponse::getId).boxed().toList(),
                 filmResponse.getProducers().stream().mapToLong(PersonResponse::getId).boxed().toList(),
                 filmResponse.getActors().stream().mapToLong(PersonResponse::getId).boxed().toList());
+        String token = (String) VaadinSession.getCurrent().getAttribute("token");
         try {
-            return filmClient.edit(filmResponse.getId(), filmRequest);
-        } catch (FeignException.FeignClientException e) {
-            String message = new String(e.responseBody().orElseThrow(() -> new CrudOperationException("Неизвестная ошибка.\nПовтрите попытку позже")).array(), StandardCharsets.UTF_8);
-            try {
-                JSONObject json = new JSONObject(message);
-                throw new CrudOperationException(json.getString("message"));
-            } catch (JSONException e1) {
-                throw new CrudOperationException("Неизвестная ошибка.\nПовтрите попытку позже");
-            }
+            return filmClient.edit(filmResponse.getId(), filmRequest, "Bearer " + token);
+        } catch (AuthException e) {
+            throw new CrudOperationException("Войдите или зарегистрируйтесь");
+        } catch (NotFoundException e) {
+            throw new CrudOperationException("Страница не найдена");
+        } catch (BadRequestException e) {
+            throw new CrudOperationException(e.getMessage());
         } catch (FeignException e) {
-            throw new CrudOperationException("Неизвестная ошибка.\nПовтрите попытку позже");
+            throw new CrudOperationException("Ошибка сервера");
         }
     }
 
     public void delete(FilmResponse filmResponse) {
-        filmClient.delete(filmResponse.getId());
+        String token = (String) VaadinSession.getCurrent().getAttribute("token");
+        try {
+            filmClient.delete(filmResponse.getId(), "Bearer " + token);
+        } catch (AuthException e) {
+            throw new CrudOperationException("Войдите или зарегистрируйтесь");
+        } catch (NotFoundException e) {
+            throw new CrudOperationException("Страница не найдена");
+        } catch (BadRequestException e) {
+            throw new CrudOperationException(e.getMessage());
+        } catch (FeignException e) {
+            throw new CrudOperationException("Ошибка сервера");
+        }
     }
 }

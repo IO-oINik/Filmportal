@@ -1,63 +1,41 @@
 package ru.edu.ui.views;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.sidenav.SideNav;
+import com.vaadin.flow.component.sidenav.SideNavItem;
+import com.vaadin.flow.router.*;
+import com.vaadin.flow.theme.lumo.Lumo;
+import com.vaadin.flow.server.VaadinSession;
 
-import java.util.HashMap;
-import java.util.Map;
 
+@Route("/admin")
 public class MainLayout extends AppLayout implements BeforeEnterObserver, AfterNavigationObserver {
-    private Tabs tabs = new Tabs();
-    private Map<Tab, Class<? extends HasComponents>> tabToView = new HashMap<>();
-    private Map<Class<? extends HasComponents>, Tab> viewToTab = new HashMap<>();
+    private SideNav sideNav = new SideNav();
 
     public MainLayout() {
-        AppLayout appLayout = new AppLayout();
-
-        Image img = new Image("https://i.imgur.com/GPpnszs.png", "Vaadin Logo");
-        img.setHeight("44px");
-        addToNavbar(img);
-
-        tabs.addSelectedChangeListener(event -> tabsSelectionChanged(event));
-        addToNavbar(tabs);
-
-        addTab(FilmView.class, "Фильмы");
-        addTab(GenreView.class, "Жанры");
-        addTab(AgeLimitView.class, "Возрастные ограничения");
-        addTab(CountryView.class, "Страны");
-        addTab(PersonView.class, "Артисты");
-    }
-
-    private void tabsSelectionChanged(Tabs.SelectedChangeEvent event) {
-        if (event.isFromClient()) {
-            UI.getCurrent().navigate((Class<? extends Component>) tabToView.get(event.getSelectedTab()));
+        UI.getCurrent().getElement().getThemeList().add(Lumo.DARK);
+        if(VaadinSession.getCurrent().getAttribute("token") == null) {
+            UI.getCurrent().navigate("login");
         }
-    }
 
-    private void addTab(Class<? extends HasComponents> clazz, String name) {
-        Tab tab = new Tab(name);
-        tabs.add(tab);
-        tabToView.put(tab, clazz);
-        viewToTab.put(clazz, tab);
+        DrawerToggle drawerToggle = new DrawerToggle();
+        addToNavbar(drawerToggle);
+        sideNav.addItem(new SideNavItem("Фильмы", FilmView.class));
+        sideNav.addItem(new SideNavItem("Жанры", GenreView.class));
+        sideNav.addItem(new SideNavItem("Страны", CountryView.class));
+        sideNav.addItem(new SideNavItem("Возрастные ограничения", AgeLimitView.class));
+        sideNav.addItem(new SideNavItem("Персоны", PersonView.class));
+
+        addToDrawer(sideNav);
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        selectTabByCurrentView(event);
-    }
-
-    public void selectTabByCurrentView(BeforeEnterEvent event) {
-        Class<?> viewClass = event.getNavigationTarget();
-        tabs.setSelectedTab(viewToTab.get(viewClass));
+        if(VaadinSession.getCurrent().getAttribute("token") == null) {
+            event.forwardTo("login");
+        }
     }
 
     @Override
@@ -66,7 +44,7 @@ public class MainLayout extends AppLayout implements BeforeEnterObserver, AfterN
     }
 
     public void updatePageTitle() {
-        Class<? extends HasComponents> viewClass = tabToView.get(tabs.getSelectedTab());
+//        Class<? extends HasComponents> viewClass = tabToView.get(tabs.getSelectedTab());
 //        UI.getCurrent().getPage().setTitle(DemooUtils.getViewName(viewClass) + " - " + "Crud UI add-on demo");
     }
 

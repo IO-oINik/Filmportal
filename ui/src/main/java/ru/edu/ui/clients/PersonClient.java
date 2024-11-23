@@ -3,6 +3,7 @@ package ru.edu.ui.clients;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import ru.edu.ui.models.requests.PersonRequest;
 import ru.edu.ui.models.responses.CareersResponse;
 import ru.edu.ui.models.responses.PersonResponse;
@@ -14,5 +15,5 @@ import ru.edu.ui.models.responses.PersonResponse;
 )
 public interface PersonClient extends CrudClient<PersonResponse, PersonRequest>{
     @GetMapping("/{id}/careers")
-    public CareersResponse getCareers(@PathVariable("id") long id);
+    public CareersResponse getCareers(@PathVariable("id") long id, @RequestHeader("Authorization") String token);
 }

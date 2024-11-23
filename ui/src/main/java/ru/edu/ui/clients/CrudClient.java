@@ -6,14 +6,14 @@ import java.util.List;
 
 public interface CrudClient<T, K> {
     @GetMapping("/all")
-    List<T> findAll();
+    List<T> findAll(@RequestHeader("Authorization") String token);
 
     @PostMapping("/create")
-    T create(@RequestBody K request);
+    T create(@RequestBody K request, @RequestHeader("Authorization") String token);
 
     @PostMapping("/{id}/edit")
-    T edit(@PathVariable("id") long id, @RequestBody K request);
+    T edit(@PathVariable("id") long id, @RequestBody K request, @RequestHeader("Authorization") String token);
 
     @DeleteMapping("/{id}/delete")
-    void delete(@PathVariable("id") long id);
+    void delete(@PathVariable("id") long id, @RequestHeader("Authorization") String token);
 }

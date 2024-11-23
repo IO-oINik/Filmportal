@@ -3,6 +3,7 @@ package ru.edu.ui.clients;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import ru.edu.ui.models.User;
 import ru.edu.ui.models.requests.UserRequest;
 
@@ -16,5 +17,5 @@ import java.util.Optional;
 )
 public interface UserClient extends CrudClient<User, UserRequest>{
     @GetMapping("/findByNickname/{nickname}")
-    Optional<User> findByNickname(@PathVariable String nickname);
+    Optional<User> findByNickname(@PathVariable String nickname, @RequestHeader("Authorization") String token);
 }

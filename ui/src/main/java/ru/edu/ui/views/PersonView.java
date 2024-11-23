@@ -13,6 +13,7 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import org.vaadin.crudui.crud.CrudOperation;
+import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 import ru.edu.ui.models.responses.CountryResponse;
@@ -22,7 +23,6 @@ import ru.edu.ui.services.PersonService;
 
 
 @Route(value = "person", layout = MainLayout.class)
-@RolesAllowed(value = {"ADMIN"})
 public class PersonView extends VerticalLayout {
     private final PersonService personService;
 
@@ -44,7 +44,13 @@ public class PersonView extends VerticalLayout {
                         countryService.findAll(),
                         new TextRenderer<>(CountryResponse::getTitle),
                         CountryResponse::getTitle));
-
+        crud.getCrudFormFactory().setErrorListener(e -> {
+            if(CrudOperationException.class.isAssignableFrom(e.getClass())) {
+                crud.showNotification(e.getMessage());
+            } else {
+                crud.showNotification("Ошибка");
+            }
+        });
 
 
         // layout configuration
