@@ -44,23 +44,34 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     @Override
     public FilmResponse create(FilmCreateRequest request) {
         var film = filmMapper.toFilm(request);
-        if(request.ageLimitId() != null) {
+        if (request.ageLimitId() != null) {
             var ageLimit = ageLimitRepository.findById(request.ageLimitId()).orElseThrow();
             film.setAgeLimit(ageLimit);
         }
-        var countries = countryRepository.findAllById(request.countriesId());
-        var genres = genreRepository.findAllById(request.genresId());
-        var directors = personRepository.findAllById(request.directorsId());
-        var screenwriters = personRepository.findAllById(request.screenwritersId());
-        var producers = personRepository.findAllById(request.producersId());
-        var actors = personRepository.findAllById(request.actorsId());
-
-        film.setCountries(countries);
-        film.setGenres(genres);
-        film.setDirectors(directors);
-        film.setScreenwriters(screenwriters);
-        film.setProducers(producers);
-        film.setActors(actors);
+        if (request.countriesId() != null) {
+            var countries = countryRepository.findAllById(request.countriesId());
+            film.setCountries(countries);
+        }
+        if (request.genresId() != null) {
+            var genres = genreRepository.findAllById(request.genresId());
+            film.setGenres(genres);
+        }
+        if (request.directorsId() != null) {
+            var directors = personRepository.findAllById(request.directorsId());
+            film.setDirectors(directors);
+        }
+        if (request.screenwritersId() != null) {
+            var screenwriters = personRepository.findAllById(request.screenwritersId());
+            film.setScreenwriters(screenwriters);
+        }
+        if(request.producersId() != null) {
+            var producers = personRepository.findAllById(request.producersId());
+            film.setProducers(producers);
+        }
+        if (request.actorsId() != null) {
+            var actors = personRepository.findAllById(request.actorsId());
+            film.setActors(actors);
+        }
         film = filmRepository.save(film);
 
         return filmMapper.toFilmResponse(film);
@@ -101,20 +112,30 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
             var ageLimit = ageLimitRepository.findById(request.ageLimitId()).orElseThrow(() -> new EntityNotFoundException("AgeLimit not found with the ID: " + id));
             film.setAgeLimit(ageLimit);
         }
-
-        var countries = countryRepository.findAllById(request.countriesId());
-        var genres = genreRepository.findAllById(request.genresId());
-        var directors = personRepository.findAllById(request.directorsId());
-        var screenwriters = personRepository.findAllById(request.screenwritersId());
-        var producers = personRepository.findAllById(request.producersId());
-        var actors = personRepository.findAllById(request.actorsId());
-
-        film.setCountries(countries);
-        film.setGenres(genres);
-        film.setDirectors(directors);
-        film.setScreenwriters(screenwriters);
-        film.setProducers(producers);
-        film.setActors(actors);
+        if (request.countriesId() != null) {
+            var countries = countryRepository.findAllById(request.countriesId());
+            film.setCountries(countries);
+        }
+        if (request.genresId() != null) {
+            var genres = genreRepository.findAllById(request.genresId());
+            film.setGenres(genres);
+        }
+        if (request.directorsId() != null) {
+            var directors = personRepository.findAllById(request.directorsId());
+            film.setDirectors(directors);
+        }
+        if (request.screenwritersId() != null) {
+            var screenwriters = personRepository.findAllById(request.screenwritersId());
+            film.setScreenwriters(screenwriters);
+        }
+        if(request.producersId() != null) {
+            var producers = personRepository.findAllById(request.producersId());
+            film.setProducers(producers);
+        }
+        if (request.actorsId() != null) {
+            var actors = personRepository.findAllById(request.actorsId());
+            film.setActors(actors);
+        }
 
         film = filmRepository.save(film);
         return filmMapper.toFilmResponse(film);

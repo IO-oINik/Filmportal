@@ -3,10 +3,10 @@ package ru.edu.filmportal.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.edu.filmportal.models.requests.PersonCreateRequest;
 import ru.edu.filmportal.models.requests.PersonEditRequest;
@@ -44,13 +44,13 @@ public class PersonController {
 
     @PostMapping("/create")
     @Operation(summary = "Создаёт нового человека")
-    public ResponseEntity<PersonResponse> create(@RequestBody @Validated PersonCreateRequest request) {
+    public ResponseEntity<PersonResponse> create(@RequestBody @Valid PersonCreateRequest request) {
         return ResponseEntity.ok(service.create(request));
     }
 
     @PostMapping("/{person-id}/edit")
     @Operation(summary = "Изменяет человека по id")
-    public ResponseEntity<PersonResponse> edit(@PathVariable("person-id") long id, @RequestBody PersonEditRequest request) {
+    public ResponseEntity<PersonResponse> edit(@PathVariable("person-id") long id, @RequestBody @Valid PersonEditRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 

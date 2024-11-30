@@ -2,6 +2,7 @@ package ru.edu.filmportal.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,13 +36,13 @@ public class GenreController {
 
     @PostMapping("/create")
     @Operation(summary = "Создаёт жанр")
-    public ResponseEntity<GenreResponse> create(@RequestBody @Validated GenreRequest request) {
+    public ResponseEntity<GenreResponse> create(@RequestBody @Valid GenreRequest request) {
         return ResponseEntity.ok(service.create(request));
     }
 
     @PostMapping("/{genre-id}/edit")
     @Operation(summary = "Изменяет жанр")
-    public ResponseEntity<GenreResponse> edit(@PathVariable("genre-id") long id, @RequestBody @Validated GenreRequest request) {
+    public ResponseEntity<GenreResponse> edit(@PathVariable("genre-id") long id, @RequestBody @Valid GenreRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 

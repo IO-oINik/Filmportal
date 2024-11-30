@@ -12,9 +12,6 @@ public record PersonCreateRequest (
         @NotBlank(message = "Person name can not blank")
         @NotEmpty(message = "Person name can not empty")
         String name,
-        @NotNull(message = "Person surname is required")
-        @NotBlank(message = "Person surname can not blank")
-        @NotEmpty(message = "Person surname can not empty")
         String surname,
         String nameForeign,
         LocalDate dateOfBirth,

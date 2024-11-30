@@ -2,10 +2,10 @@ package ru.edu.filmportal.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.edu.filmportal.models.requests.AgeLimitRequest;
 import ru.edu.filmportal.models.responses.AgeLimitResponse;
@@ -35,13 +35,13 @@ public class AgeLimitController {
 
     @PostMapping("/create")
     @Operation(summary = "Создаёт новое возрастное ограничение")
-    public ResponseEntity<AgeLimitResponse> create(@RequestBody @Validated AgeLimitRequest request) {
+    public ResponseEntity<AgeLimitResponse> create(@RequestBody @Valid AgeLimitRequest request) {
         return ResponseEntity.ok(service.create(request));
     }
 
     @PostMapping("/{ageLimit-id}/edit")
     @Operation(summary = "Изменяет возрастное ограничение")
-    public ResponseEntity<AgeLimitResponse> edit(@PathVariable("ageLimit-id") long id, @RequestBody @Validated AgeLimitRequest request) {
+    public ResponseEntity<AgeLimitResponse> edit(@PathVariable("ageLimit-id") long id, @RequestBody @Valid AgeLimitRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 

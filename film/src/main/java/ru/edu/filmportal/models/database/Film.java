@@ -23,14 +23,14 @@ public class Film {
     @Column(nullable = true)
     private String titleForeign;
 
-    @Column(nullable = true)
+    @Column(nullable = true, length = 5000)
     private String description;
 
     @Column(nullable = true)
     private String slogan;
 
-    @Column(nullable = false)
-    private int yearOfProduction;
+    @Column(nullable = true)
+    private Integer yearOfProduction;
 
     @Column(nullable = true)
     private LocalDate releaseDateInWorld;
@@ -39,15 +39,14 @@ public class Film {
     private LocalDate releaseDateInRussia;
 
     @Column(nullable = true)
-    private int budget;
+    private Integer budget;
 
     @Column(nullable = true)
-    private int durationInSeconds;
+    private Integer durationInSeconds;
 
     @ManyToOne
     private AgeLimit ageLimit;
 
-    @Column(nullable = false)
     @ManyToMany
     @JoinTable(
             name = "film_country",
@@ -56,7 +55,6 @@ public class Film {
     )
     private List<Country> countries;
 
-    @Column(nullable = true)
     @ManyToMany
     @JoinTable(
             name = "film_genre",
@@ -65,7 +63,6 @@ public class Film {
     )
     private List<Genre> genres;
 
-    @Column(nullable = true)
     @ManyToMany
     @JoinTable(
             name = "film_director",
@@ -74,7 +71,6 @@ public class Film {
     )
     private List<Person> directors;
 
-    @Column(nullable = true)
     @ManyToMany
     @JoinTable(
             name = "film_screenwriter",
@@ -83,7 +79,6 @@ public class Film {
     )
     private List<Person> screenwriters;
 
-    @Column(nullable = true)
     @ManyToMany
     @JoinTable(
             name = "film_producer",
@@ -92,7 +87,6 @@ public class Film {
     )
     private List<Person> producers;
 
-    @Column(nullable = true)
     @ManyToMany
     @JoinTable(
             name = "film_actor",

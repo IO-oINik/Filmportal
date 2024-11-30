@@ -19,7 +19,6 @@ public record FilmCreateRequest(
 
     String slogan,
 
-    @NotNull(message = "Film yearOfProduction is required")
     Integer yearOfProduction,
 
     LocalDate releaseDateInWorld,

@@ -2,11 +2,11 @@ package ru.edu.filmportal.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.edu.filmportal.models.requests.FilmCreateRequest;
 import ru.edu.filmportal.models.requests.FilmEditRequest;
@@ -43,13 +43,13 @@ public class FilmController {
 
     @PostMapping("/create")
     @Operation(summary = "Создаёт новый фильм")
-    public ResponseEntity<FilmResponse> create(@RequestBody @Validated FilmCreateRequest request) {
+    public ResponseEntity<FilmResponse> create(@RequestBody @Valid FilmCreateRequest request) {
         return ResponseEntity.ok(service.create(request));
     }
 
     @PostMapping("/{film-id}/edit")
     @Operation(summary = "Редактирует фильмы по id")
-    public ResponseEntity<FilmResponse> edit(@PathVariable("film-id") long id, @RequestBody @Validated FilmEditRequest request) {
+    public ResponseEntity<FilmResponse> edit(@PathVariable("film-id") long id, @RequestBody @Valid FilmEditRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 
