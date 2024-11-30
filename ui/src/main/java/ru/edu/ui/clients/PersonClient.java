@@ -15,5 +15,5 @@ import ru.edu.ui.models.responses.PersonResponse;
 )
 public interface PersonClient extends CrudClient<PersonResponse, PersonRequest>{
     @GetMapping("/{id}/careers")
-    public CareersResponse getCareers(@PathVariable("id") long id, @RequestHeader("Authorization") String token);
+    CareersResponse getCareers(@PathVariable("id") long id, @RequestHeader("Authorization") String token);
 }

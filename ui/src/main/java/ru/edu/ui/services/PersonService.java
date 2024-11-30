@@ -36,9 +36,8 @@ public class PersonService {
     }
 
     public List<PersonResponse> findAll() {
-        String token = (String) VaadinSession.getCurrent().getAttribute("token");
         try {
-            return personClient.findAll("Bearer " + token);
+            return personClient.findAll();
         } catch (AuthException e) {
             throw new CrudOperationException("Войдите или зарегистрируйтесь");
         } catch (NotFoundException e) {

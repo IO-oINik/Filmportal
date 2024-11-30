@@ -24,9 +24,8 @@ public class FilmService {
     private final FilmClient filmClient;
 
     public List<FilmResponse> findAll() {
-        String token = (String) VaadinSession.getCurrent().getAttribute("token");
         try {
-            return filmClient.findAll("Bearer " + token);
+            return filmClient.findAll();
         } catch (AuthException e) {
             throw new CrudOperationException("Войдите или зарегистрируйтесь");
         } catch (NotFoundException e) {

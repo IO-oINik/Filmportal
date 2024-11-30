@@ -20,9 +20,8 @@ public class GenreService {
     private final GenreClient genreClient;
 
     public List<GenreResponse> findAll() {
-        String token = (String) VaadinSession.getCurrent().getAttribute("token");
         try {
-            return genreClient.findAll("Bearer " + token);
+            return genreClient.findAll();
         } catch (AuthException e) {
             throw new CrudOperationException("Войдите или зарегистрируйтесь");
         } catch (NotFoundException e) {

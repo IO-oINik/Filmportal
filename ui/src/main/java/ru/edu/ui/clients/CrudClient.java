@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface CrudClient<T, K> {
     @GetMapping("/all")
-    List<T> findAll(@RequestHeader("Authorization") String token);
+    List<T> findAll();
 
     @PostMapping("/create")
     T create(@RequestBody K request, @RequestHeader("Authorization") String token);

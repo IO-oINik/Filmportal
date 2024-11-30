@@ -38,6 +38,7 @@ public class CustomErrorDecoder implements ErrorDecoder {
             case 400 -> new BadRequestException(errorResponse.message != null ? errorResponse.message : "Bad request");
             case 404 -> new NotFoundException(errorResponse.message != null ? errorResponse.message : "Not found");
             case 401 -> new AuthException(errorResponse.message != null ? errorResponse.message : "Invalid credentials");
+            case 403 -> new AuthException(errorResponse.message != null ? errorResponse.message : "Unauthorized");
             default -> errorDecoder.decode(s, response);
         };
     }

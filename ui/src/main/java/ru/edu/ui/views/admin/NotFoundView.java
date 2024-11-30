@@ -1,9 +1,8 @@
-package ru.edu.ui.views;
+package ru.edu.ui.views.admin;
 
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteNotFoundError;
 
 public class NotFoundView extends RouteNotFoundError {

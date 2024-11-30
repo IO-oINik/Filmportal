@@ -1,4 +1,4 @@
-package ru.edu.ui.views;
+package ru.edu.ui.views.admin;
 
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -9,7 +9,6 @@ import com.vaadin.flow.component.textfield.TextFieldBase;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
-import jakarta.annotation.security.RolesAllowed;
 import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
@@ -19,7 +18,7 @@ import ru.edu.ui.services.*;
 import java.util.stream.Stream;
 
 
-@Route(value = "film", layout = MainLayout.class)
+@Route(value = "film", layout = MainAdminLayout.class)
 public class FilmView extends VerticalLayout {
 
     private final GenreService genreService;

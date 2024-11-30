@@ -1,21 +1,25 @@
 package ru.edu.ui.clients;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import ru.edu.ui.models.User;
-import ru.edu.ui.models.requests.UserRequest;
+import org.springframework.web.bind.annotation.*;
+import ru.edu.ui.models.requests.UserEditRequest;
+import ru.edu.ui.models.responses.UserResponse;
 
 import java.util.List;
-import java.util.Optional;
 
 @FeignClient(
         name = "gateway-service",
         contextId = "user",
         url = "${application.config.urls.user-url}"
 )
-public interface UserClient extends CrudClient<User, UserRequest>{
-    @GetMapping("/findByNickname/{nickname}")
-    Optional<User> findByNickname(@PathVariable String nickname, @RequestHeader("Authorization") String token);
+public interface UserClient {
+    @GetMapping("/all")
+    List<UserResponse> findAll(@RequestHeader("Authorization") String token);
+
+    @PostMapping("/{id}/edit")
+    UserResponse edit(@PathVariable("id") long id, @RequestBody UserEditRequest request, @RequestHeader("Authorization") String token);
+
+    @DeleteMapping("/{id}/delete")
+    void delete(@PathVariable("id") long id, @RequestHeader("Authorization") String token);
 }
+

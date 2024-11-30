@@ -1,4 +1,4 @@
-package ru.edu.ui.views;
+package ru.edu.ui.views.admin;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.login.LoginForm;
@@ -11,13 +11,12 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.Lumo;
 import ru.edu.ui.exceptions.AuthException;
 import ru.edu.ui.services.AuthService;
+import ru.edu.ui.utils.JwtUtils;
 
 @Route(value = "/login")
 public class LoginView extends VerticalLayout implements BeforeEnterListener {
-    private AuthService authService;
 
-    public LoginView(AuthService authService) {
-        this.authService = authService;
+    public LoginView(AuthService authService, JwtUtils jwtUtils) {
 
         UI.getCurrent().getElement().getThemeList().add(Lumo.DARK);
 
@@ -44,6 +43,8 @@ public class LoginView extends VerticalLayout implements BeforeEnterListener {
             try {
                 String token = authService.getToken(username, password);
                 VaadinSession.getCurrent().setAttribute("token", token);
+                VaadinSession.getCurrent().setAttribute("username", jwtUtils.extractUsername(token));
+                VaadinSession.getCurrent().setAttribute("role", jwtUtils.extractRole(token));
                 UI.getCurrent().navigate("/admin");
             } catch (AuthException e) {
                 loginForm.setError(true);

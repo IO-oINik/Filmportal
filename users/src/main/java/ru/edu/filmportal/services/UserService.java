@@ -65,6 +65,9 @@ public class UserService {
         if(request.email() != null && !request.email().isBlank()) {
             user.setEmail(request.email());
         }
+        if(request.role() != null) {
+            user.setRole(request.role());
+        }
 
         return mapper.toUserResponse(userRepository.save(user));
     }

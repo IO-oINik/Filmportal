@@ -20,9 +20,8 @@ public class AgeLimitService {
     private final AgeLimitClient ageLimitClient;
 
     public List<AgeLimitResponse> findAll() {
-        String token = (String) VaadinSession.getCurrent().getAttribute("token");
         try {
-            return ageLimitClient.findAll("Bearer " + token);
+            return ageLimitClient.findAll();
         } catch (AuthException e) {
             throw new CrudOperationException("Войдите или зарегистрируйтесь");
         } catch (NotFoundException e) {

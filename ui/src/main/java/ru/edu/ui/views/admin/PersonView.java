@@ -1,17 +1,11 @@
-package ru.edu.ui.views;
+package ru.edu.ui.views.admin;
 
-import ch.qos.logback.core.Layout;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.textfield.TextFieldBase;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
-import jakarta.annotation.security.RolesAllowed;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -22,7 +16,7 @@ import ru.edu.ui.services.CountryService;
 import ru.edu.ui.services.PersonService;
 
 
-@Route(value = "person", layout = MainLayout.class)
+@Route(value = "person", layout = MainAdminLayout.class)
 public class PersonView extends VerticalLayout {
     private final PersonService personService;
 
