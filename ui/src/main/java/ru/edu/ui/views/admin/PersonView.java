@@ -29,7 +29,7 @@ public class PersonView extends VerticalLayout {
         crud.getGrid().setColumnReorderingAllowed(true);
 
         // form configuration
-//        crud.getCrudFormFactory().setUseBeanValidation(true);
+        crud.getCrudFormFactory().setUseBeanValidation(true);
         crud.getCrudFormFactory().setVisibleProperties("name", "surname", "nameForeign", "dateOfBirth", "countryOfBirth");
         crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "name", "surname", "nameForeign", "dateOfBirth", "countryOfBirth");
         crud.getCrudFormFactory().setFieldProvider("countryOfBirth", new ComboBoxProvider<>(countryService.findAll()));

@@ -20,7 +20,7 @@ public class GenreView extends VerticalLayout {
         crud.getGrid().setColumnReorderingAllowed(true);
 
         // form configuration
-//        crud.getCrudFormFactory().setUseBeanValidation(true);
+        crud.getCrudFormFactory().setUseBeanValidation(true);
         crud.getCrudFormFactory().setVisibleProperties("title");
         crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "title");
         crud.getCrudFormFactory().setErrorListener(e -> {

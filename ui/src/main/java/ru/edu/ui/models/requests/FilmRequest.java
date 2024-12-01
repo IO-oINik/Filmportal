@@ -1,5 +1,8 @@
 package ru.edu.ui.models.requests;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import ru.edu.ui.models.responses.AgeLimitResponse;
 import ru.edu.ui.models.responses.CountryResponse;
@@ -15,6 +18,9 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class FilmRequest {
+    @NotNull(message = "Film title is required")
+    @NotBlank(message = "Film title can not blank")
+    @NotEmpty(message = "Film title can not empty")
     private String title;
     private String titleForeign;
     private String description;

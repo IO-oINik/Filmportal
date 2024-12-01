@@ -20,7 +20,7 @@ public class AgeLimitView extends VerticalLayout {
         crud.getGrid().setColumnReorderingAllowed(true);
 
         // form configuration
-//        crud.getCrudFormFactory().setUseBeanValidation(true);
+        crud.getCrudFormFactory().setUseBeanValidation(true);
         crud.getCrudFormFactory().setVisibleProperties("age");
         crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "age");
         crud.getCrudFormFactory().setErrorListener(e -> {
