@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.edu.filmportal.models.request.UserCreateRequest;
 import ru.edu.filmportal.models.request.UserEditRequest;
 import ru.edu.filmportal.models.response.MessageResponse;
 import ru.edu.filmportal.models.response.UserResponse;
@@ -32,6 +31,12 @@ public class UserController {
     @Operation(summary = "Найти пользователя по Id")
     public ResponseEntity<UserResponse> getById(@PathVariable("id") long id) {
         return ResponseEntity.ok(service.findById(id));
+    }
+
+    @GetMapping("/me")
+    @Operation(summary = "Информация о себе")
+    public ResponseEntity<UserResponse> getMe() {
+        return ResponseEntity.ok(service.findMe());
     }
 
     @GetMapping("/findByNickname/{nickname}")

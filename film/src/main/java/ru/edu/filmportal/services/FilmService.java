@@ -1,13 +1,19 @@
 package ru.edu.filmportal.services;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Service;
+import ru.edu.filmportal.exceptions.BadRequestException;
+import ru.edu.filmportal.exceptions.NotFoundException;
 import ru.edu.filmportal.mappers.FilmMapper;
+import ru.edu.filmportal.models.database.Film;
 import ru.edu.filmportal.models.requests.FilmCreateRequest;
 import ru.edu.filmportal.models.requests.FilmEditRequest;
 import ru.edu.filmportal.models.responses.FilmResponse;
+import ru.edu.filmportal.models.responses.PageableDataResponse;
 import ru.edu.filmportal.repositories.*;
 
 import java.util.List;
@@ -15,7 +21,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FilmService implements EntityService<FilmResponse, FilmCreateRequest, FilmEditRequest> {
-    private final int SIZE_PAGE = 10;
     private final FilmRepository filmRepository;
     private final FilmMapper filmMapper;
     private final GenreRepository genreRepository;
@@ -27,7 +32,7 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     public FilmResponse findById(long id) {
         return filmRepository.findById(id)
                 .map(filmMapper::toFilmResponse)
-                .orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + id));
+                .orElseThrow(() -> new NotFoundException("Film not found with the ID: " + id));
     }
 
     @Override
@@ -35,10 +40,34 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
         return filmRepository.findAll().stream().map(filmMapper::toFilmResponse).toList();
     }
 
-    public List<FilmResponse> findAll(int pageNumber) {
-        var pageRequest = PageRequest.of(pageNumber, SIZE_PAGE);
-        var result = filmRepository.findAll(pageRequest);
-        return result.map(filmMapper::toFilmResponse).toList();
+    public PageableDataResponse<FilmResponse> findAllWithParameters(int page, int pageSize, String sort, String order) {
+        if (order == null || order.isBlank() || (!order.equalsIgnoreCase("asc") && !order.equalsIgnoreCase("desc"))) {
+            throw new BadRequestException("Invalid sort order: " + order);
+        }
+        if (page < 1) {
+            throw new BadRequestException("page must be larger than 1");
+        }
+        if (pageSize < 1) {
+            throw new BadRequestException("page size must be larger than 1");
+        }
+
+        Sort.Direction direction;
+        if (order.equalsIgnoreCase("asc")) {
+            direction = Sort.Direction.ASC;
+        } else {
+            direction = Sort.Direction.DESC;
+        }
+        var pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(direction, sort));
+
+        Page<Film> result;
+        try {
+            result = filmRepository.findAll(pageRequest);
+        } catch (PropertyReferenceException ex) {
+            throw new BadRequestException("Invalid parameter sort: " + sort);
+        }
+        long totalElements = result.getTotalElements();
+        List<FilmResponse> filmResponses = result.map(filmMapper::toFilmResponse).toList();
+        return new PageableDataResponse<>(filmResponses, totalElements);
     }
 
     @Override
@@ -79,7 +108,7 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
 
     @Override
     public FilmResponse update(long id, FilmEditRequest request) {
-        var film = filmRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + id));
+        var film = filmRepository.findById(id).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + id));
 
         if(request.title() != null && !request.title().isBlank()) {
             film.setTitle(request.title());
@@ -109,7 +138,7 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
             film.setDurationInSeconds(request.durationInSeconds());
         }
         if(request.ageLimitId() != null) {
-            var ageLimit = ageLimitRepository.findById(request.ageLimitId()).orElseThrow(() -> new EntityNotFoundException("AgeLimit not found with the ID: " + id));
+            var ageLimit = ageLimitRepository.findById(request.ageLimitId()).orElseThrow(() -> new NotFoundException("AgeLimit not found with the ID: " + id));
             film.setAgeLimit(ageLimit);
         }
         if (request.countriesId() != null) {
@@ -142,8 +171,8 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     }
 
     public FilmResponse addCountry(long idFilm, long idCountry) {
-        var film = filmRepository.findById(idFilm).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + idFilm));
-        var country = countryRepository.findById(idCountry).orElseThrow(() -> new EntityNotFoundException("Country not found with the ID: " + idCountry));
+        var film = filmRepository.findById(idFilm).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + idFilm));
+        var country = countryRepository.findById(idCountry).orElseThrow(() -> new NotFoundException("Country not found with the ID: " + idCountry));
 
         film.getCountries().add(country);
         film = filmRepository.save(film);
@@ -151,8 +180,8 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     }
 
     public FilmResponse deleteCountry(long idFilm, long idCountry) {
-        var film = filmRepository.findById(idFilm).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + idFilm));
-        var country = countryRepository.findById(idCountry).orElseThrow(() -> new EntityNotFoundException("Country not found with the ID: " + idCountry));
+        var film = filmRepository.findById(idFilm).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + idFilm));
+        var country = countryRepository.findById(idCountry).orElseThrow(() -> new NotFoundException("Country not found with the ID: " + idCountry));
         film.getCountries().remove(country);
 
         filmRepository.save(film);
@@ -160,8 +189,8 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     }
 
     public FilmResponse addGenre(long idFilm, long idGenre) {
-        var film = filmRepository.findById(idFilm).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + idFilm));
-        var genre = genreRepository.findById(idGenre).orElseThrow(() -> new EntityNotFoundException("Genre not found with the ID: " + idGenre));
+        var film = filmRepository.findById(idFilm).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + idFilm));
+        var genre = genreRepository.findById(idGenre).orElseThrow(() -> new NotFoundException("Genre not found with the ID: " + idGenre));
 
         film.getGenres().add(genre);
         film = filmRepository.save(film);
@@ -169,8 +198,8 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     }
 
     public FilmResponse deleteGenre(long idFilm, long idGenre) {
-        var film = filmRepository.findById(idFilm).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + idFilm));
-        var genre = genreRepository.findById(idGenre).orElseThrow(() -> new EntityNotFoundException("Genre not found with the ID: " + idGenre));
+        var film = filmRepository.findById(idFilm).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + idFilm));
+        var genre = genreRepository.findById(idGenre).orElseThrow(() -> new NotFoundException("Genre not found with the ID: " + idGenre));
         film.getGenres().remove(genre);
 
         filmRepository.save(film);
@@ -178,8 +207,8 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     }
 
     public FilmResponse addDirector(long idFilm, long idDirector) {
-        var film = filmRepository.findById(idFilm).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + idFilm));
-        var director = personRepository.findById(idDirector).orElseThrow(() -> new EntityNotFoundException("Director not found with the ID: " + idDirector));
+        var film = filmRepository.findById(idFilm).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + idFilm));
+        var director = personRepository.findById(idDirector).orElseThrow(() -> new NotFoundException("Director not found with the ID: " + idDirector));
 
         film.getDirectors().add(director);
         film = filmRepository.save(film);
@@ -187,8 +216,8 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     }
 
     public FilmResponse deleteDirector(long idFilm, long idDirector) {
-        var film = filmRepository.findById(idFilm).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + idFilm));
-        var director = personRepository.findById(idDirector).orElseThrow(() -> new EntityNotFoundException("Director not found with the ID: " + idDirector));
+        var film = filmRepository.findById(idFilm).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + idFilm));
+        var director = personRepository.findById(idDirector).orElseThrow(() -> new NotFoundException("Director not found with the ID: " + idDirector));
         film.getDirectors().remove(director);
 
         filmRepository.save(film);
@@ -196,8 +225,8 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     }
 
     public FilmResponse addScreenwriter(long idFilm, long idScreenwriter) {
-        var film = filmRepository.findById(idFilm).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + idFilm));
-        var screenwriter = personRepository.findById(idScreenwriter).orElseThrow(() -> new EntityNotFoundException("Screenwriter not found with the ID: " + idScreenwriter));
+        var film = filmRepository.findById(idFilm).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + idFilm));
+        var screenwriter = personRepository.findById(idScreenwriter).orElseThrow(() -> new NotFoundException("Screenwriter not found with the ID: " + idScreenwriter));
 
         film.getScreenwriters().add(screenwriter);
         film = filmRepository.save(film);
@@ -205,8 +234,8 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     }
 
     public FilmResponse deleteScreenwriter(long idFilm, long idScreenwriter) {
-        var film = filmRepository.findById(idFilm).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + idFilm));
-        var screenwriter = personRepository.findById(idScreenwriter).orElseThrow(() -> new EntityNotFoundException("Screenwriter not found with the ID: " + idScreenwriter));
+        var film = filmRepository.findById(idFilm).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + idFilm));
+        var screenwriter = personRepository.findById(idScreenwriter).orElseThrow(() -> new NotFoundException("Screenwriter not found with the ID: " + idScreenwriter));
         film.getScreenwriters().remove(screenwriter);
 
         filmRepository.save(film);
@@ -214,8 +243,8 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     }
 
     public FilmResponse addProducer(long idFilm, long idProducer) {
-        var film = filmRepository.findById(idFilm).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + idFilm));
-        var producer = personRepository.findById(idProducer).orElseThrow(() -> new EntityNotFoundException("Producer not found with the ID: " + idProducer));
+        var film = filmRepository.findById(idFilm).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + idFilm));
+        var producer = personRepository.findById(idProducer).orElseThrow(() -> new NotFoundException("Producer not found with the ID: " + idProducer));
 
         film.getProducers().add(producer);
         film = filmRepository.save(film);
@@ -223,8 +252,8 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     }
 
     public FilmResponse deleteProducer(long idFilm, long idProducer) {
-        var film = filmRepository.findById(idFilm).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + idFilm));
-        var producer = personRepository.findById(idProducer).orElseThrow(() -> new EntityNotFoundException("Producer not found with the ID: " + idProducer));
+        var film = filmRepository.findById(idFilm).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + idFilm));
+        var producer = personRepository.findById(idProducer).orElseThrow(() -> new NotFoundException("Producer not found with the ID: " + idProducer));
         film.getProducers().remove(producer);
 
         filmRepository.save(film);
@@ -232,8 +261,8 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     }
 
     public FilmResponse addActor(long idFilm, long idActor) {
-        var film = filmRepository.findById(idFilm).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + idFilm));
-        var actor = personRepository.findById(idActor).orElseThrow(() -> new EntityNotFoundException("Actor not found with the ID: " + idActor));
+        var film = filmRepository.findById(idFilm).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + idFilm));
+        var actor = personRepository.findById(idActor).orElseThrow(() -> new NotFoundException("Actor not found with the ID: " + idActor));
 
         film.getActors().add(actor);
         film = filmRepository.save(film);
@@ -241,8 +270,8 @@ public class FilmService implements EntityService<FilmResponse, FilmCreateReques
     }
 
     public FilmResponse deleteActor(long idFilm, long idActor) {
-        var film = filmRepository.findById(idFilm).orElseThrow(() -> new EntityNotFoundException("Film not found with the ID: " + idFilm));
-        var actor = personRepository.findById(idActor).orElseThrow(() -> new EntityNotFoundException("Actor not found with the ID: " + idActor));
+        var film = filmRepository.findById(idFilm).orElseThrow(() -> new NotFoundException("Film not found with the ID: " + idFilm));
+        var actor = personRepository.findById(idActor).orElseThrow(() -> new NotFoundException("Actor not found with the ID: " + idActor));
 
         film.getActors().remove(actor);
         filmRepository.save(film);

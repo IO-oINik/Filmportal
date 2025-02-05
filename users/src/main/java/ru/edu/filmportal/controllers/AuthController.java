@@ -2,13 +2,15 @@ package ru.edu.filmportal.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.edu.filmportal.exceptions.InvalidTokenException;
 import ru.edu.filmportal.models.request.AuthRequest;
 import ru.edu.filmportal.models.request.UserCreateRequest;
-import ru.edu.filmportal.models.response.UserResponse;
+import ru.edu.filmportal.models.response.TokensResponse;
 import ru.edu.filmportal.services.AuthService;
 import ru.edu.filmportal.utils.JwtUtils;
 
@@ -18,24 +20,44 @@ import ru.edu.filmportal.utils.JwtUtils;
 @Tag(name = "Auth Controller", description = "Контролер для регистрации и получения токенов")
 public class AuthController {
     private final AuthService authService;
-    private final JwtUtils jwtUtils;
-
-    @PostMapping("/token/get")
-    @Operation(summary = "Получить токен по учетным данным")
-    public ResponseEntity<String> getToken(@RequestBody AuthRequest authRequest) {
-        return ResponseEntity.ok(authService.getToken(authRequest));
-    }
 
     @PostMapping("/register")
-    @Operation(summary = "Регистрация новых пользователей")
-    public ResponseEntity<UserResponse> register(@RequestBody UserCreateRequest userCreateRequest) {
-        return ResponseEntity.ok(authService.register(userCreateRequest));
+    @Operation(summary = "Регистрация нового пользователя")
+    public ResponseEntity<TokensResponse> register(@Valid @RequestBody UserCreateRequest userCreateRequest, HttpServletResponse response) {
+        TokensResponse tokensResponse = authService.register(userCreateRequest);
+
+        setCookieRefreshToken(response, tokensResponse);
+        return ResponseEntity.ok(tokensResponse);
     }
 
-    @GetMapping("/token/disable")
+    @PostMapping("/login")
+    @Operation(summary = "Получение токенов по учётным данным")
+    public ResponseEntity<TokensResponse> login(@Valid @RequestBody AuthRequest authRequest, HttpServletResponse response) {
+        TokensResponse tokensResponse = authService.login(authRequest);
+
+        setCookieRefreshToken(response, tokensResponse);
+        return ResponseEntity.ok(tokensResponse);
+    }
+
+    @GetMapping("/refresh-token")
+    @Operation(summary = "Обновление токенов")
+    public ResponseEntity<TokensResponse> refresh(@CookieValue(value = "refreshToken") String refreshToken, HttpServletResponse response) {
+        TokensResponse tokensResponse = authService.refresh(refreshToken);
+
+        setCookieRefreshToken(response, tokensResponse);
+        return ResponseEntity.ok(tokensResponse);
+    }
+
+    @GetMapping("/logout")
     @Operation(summary = "Инвалидация токена (выход из системы)")
-    public void disableToken(@RequestHeader("Authorization") String authorizationHeader) {
-        String token = jwtUtils.extractJwt(authorizationHeader).orElseThrow(() -> new InvalidTokenException("Token is missing"));
-        authService.disableToken(token);
+    public void logout(@CookieValue(value = "refreshToken") String refreshToken) {
+        authService.logout(refreshToken);
+    }
+
+    private void setCookieRefreshToken(HttpServletResponse response, TokensResponse tokensResponse) {
+        Cookie cookie = new Cookie("refreshToken", tokensResponse.refreshToken());
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge((int) JwtUtils.EXPIRATION_TIME_REFRESH_TOKEN / 1_000);
+        response.addCookie(cookie);
     }
 }

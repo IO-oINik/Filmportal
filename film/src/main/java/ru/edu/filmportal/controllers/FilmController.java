@@ -12,9 +12,9 @@ import ru.edu.filmportal.models.requests.FilmCreateRequest;
 import ru.edu.filmportal.models.requests.FilmEditRequest;
 import ru.edu.filmportal.models.responses.FilmResponse;
 import ru.edu.filmportal.models.responses.MessageResponse;
+import ru.edu.filmportal.models.responses.PageableDataResponse;
 import ru.edu.filmportal.services.FilmService;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,15 +24,13 @@ public class FilmController {
     private final FilmService service;
 
     @GetMapping("/all")
-    @Operation(summary = "Возвращает все фильмы")
-    public ResponseEntity<List<FilmResponse>> getAll() {
-        return ResponseEntity.ok(service.findAll());
-    }
-
-    @GetMapping("/all/{page-number}")
-    @Operation(summary = "Возвращает все фильмы по страницам (10 фильмов на странице)")
-    public ResponseEntity<List<FilmResponse>> getAll(@PathVariable("page-number") int numberList) {
-        return ResponseEntity.ok(service.findAll(numberList+1));
+    @Operation(summary = "Возвращает все фильмы постранично используя параметры")
+    public ResponseEntity<PageableDataResponse<FilmResponse>> getAllByTitle(
+            @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @RequestParam(value = "pageSize", defaultValue = "50") Integer pageSize,
+            @RequestParam(value = "sort", defaultValue = "id") String sort,
+            @RequestParam(value = "order", defaultValue = "asc") String order) {
+        return ResponseEntity.ok(service.findAllWithParameters(page, pageSize, sort, order));
     }
 
     @GetMapping("/{film-id}")

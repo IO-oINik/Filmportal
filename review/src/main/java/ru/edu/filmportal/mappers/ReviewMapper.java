@@ -27,7 +27,6 @@ public class ReviewMapper {
         return Review.builder()
                 .title(reviewCreateRequest.title())
                 .text(reviewCreateRequest.text())
-                .userId(reviewCreateRequest.userId())
                 .filmId(reviewCreateRequest.filmId())
                 .build();
     }

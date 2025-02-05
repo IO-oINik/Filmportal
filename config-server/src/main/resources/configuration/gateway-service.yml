@@ -18,6 +18,35 @@ spring:
             - Path=/api/v1/user/**,/api/v1/role/**,/api/v1/auth/**
           filters:
             - name: JwtForwardingFilter
+        - id: review-service
+          uri: lb://REVIEW-SERVICE
+          predicates:
+            - Path=/api/v1/film-score/**
+          filters:
+            - name: JwtForwardingFilter
+      globalcors:
+        cors-configurations:
+          '[/**]': # Разрешить CORS для всех маршрутов
+            allowedOrigins: "http://localhost:5174"  # Разрешенные источники (укажи фронтенд)
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"  # Разрешаем все заголовки
+            allowCredentials: true  # Если работаешь с куками
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    urls:
+      - url: http://localhost:8081/v3/api-docs
+        name: User and Auth Service
+      - url: http://localhost:8082/v3/api-docs
+        name: Film Service
+      - url: http://localhost:8083/v3/api-docs
+        name: Review Service
 
 server:
   port: 8222

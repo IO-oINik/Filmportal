@@ -15,8 +15,6 @@ public record ReviewCreateRequest(
         String text,
         @NotNull(message = "typeId is required")
         Long typeId,
-        @NotNull(message = "userId is required")
-        Long userId,
         @NotNull(message = "filmId is required")
         Long filmId
 ) {

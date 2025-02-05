@@ -1,64 +1,106 @@
 package ru.edu.filmportal.services;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.edu.filmportal.exceptions.InvalidCredentialsException;
-import ru.edu.filmportal.models.database.Token;
+import ru.edu.filmportal.exceptions.InvalidTokenException;
+import ru.edu.filmportal.models.database.RefreshToken;
 import ru.edu.filmportal.models.database.User;
 import ru.edu.filmportal.models.request.AuthRequest;
 import ru.edu.filmportal.models.request.UserCreateRequest;
+import ru.edu.filmportal.models.response.TokensResponse;
 import ru.edu.filmportal.models.response.UserResponse;
-import ru.edu.filmportal.repositories.TokenRepository;
+import ru.edu.filmportal.repositories.RefreshTokenRepository;
 import ru.edu.filmportal.repositories.UserRepository;
 import ru.edu.filmportal.utils.JwtUtils;
 
-import java.util.Collections;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final JwtUtils jwtUtils;
-    private final TokenRepository tokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
 
-    public String getToken(AuthRequest authRequest) {
+    public TokensResponse login(AuthRequest authRequest) {
         User user = userRepository.findByNickname(authRequest.nickname()).orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
         if(!passwordEncoder.matches(authRequest.password(), user.getHashPassword())) {
             throw new InvalidCredentialsException("Invalid credentials");
         }
 
-        String tokenString = "";
-        try {
-            if (user.getToken() != null && jwtUtils.extractUsername(user.getToken().getToken()).equals(user.getNickname())) {
-                tokenString = user.getToken().getToken();
-            } else {
-                tokenString = jwtUtils.generateToken(user.getNickname(), Collections.singletonMap("ROLE", user.getRole().toString()));
-                Token token = tokenRepository.save(new Token(tokenString));
-
-                user.setToken(token);
-                userRepository.save(user);
-            }
-        } catch (ExpiredJwtException e) {
-            tokenString = jwtUtils.generateToken(user.getNickname(), Collections.singletonMap("ROLE", user.getRole().toString()));
-            Token token = tokenRepository.save(new Token(tokenString));
-
-            user.setToken(token);
+        if (user.getToken() != null) {
+            RefreshToken token = user.getToken();
+            user.setToken(null);
             userRepository.save(user);
+            refreshTokenRepository.delete(token);
         }
 
-        return tokenString;
+        return generateTokens(user);
     }
 
-    public UserResponse register(UserCreateRequest userCreateRequest) {
-        return userService.create(userCreateRequest);
+    public TokensResponse refresh(String refreshToken) {
+        if (refreshToken == null) {
+            throw new InvalidTokenException("Invalid refresh token");
+        }
+        String username;
+        try {
+            username = jwtUtils.extractUsername(refreshToken);
+        } catch (ExpiredJwtException ex) {
+            throw new InvalidTokenException("Token is expired");
+        } catch (JwtException ex) {
+            throw new InvalidTokenException("Token is invalid");
+        }
+
+        RefreshToken token = refreshTokenRepository.findByToken(refreshToken).orElseThrow(() -> new InvalidTokenException("Token is invalid"));
+        User user = token.getUser();
+        if (!user.getNickname().equals(username)) {
+            throw new InvalidTokenException("Token is invalid");
+        }
+        user.setToken(null);
+        userRepository.save(user);
+        refreshTokenRepository.delete(token);
+
+        return generateTokens(user);
     }
 
-    public void disableToken(String token) {
-        tokenRepository.findByToken(token).ifPresent(tokenRepository::delete);
+    public TokensResponse register(UserCreateRequest userCreateRequest) {
+        UserResponse userResponse = userService.create(userCreateRequest);
+        User user = userRepository.findById(userResponse.id()).get();
+        return generateTokens(user);
+    }
+
+    public void logout(String refreshToken) {
+        if (refreshToken == null) {
+            return;
+        }
+
+        refreshTokenRepository.findByToken(refreshToken).ifPresent(token -> {
+            User user = token.getUser();
+            user.setToken(null);
+            userRepository.save(user);
+            refreshTokenRepository.delete(token);
+        });
+    }
+
+    private TokensResponse generateTokens(User user) {
+        String refreshToken = jwtUtils.generateRefreshToken(user.getNickname());
+        LocalDateTime expiresAtRefreshToken = LocalDateTime.ofInstant(
+                jwtUtils.extractExpiresAt(refreshToken),
+                ZoneId.systemDefault()
+        );
+
+        RefreshToken token = refreshTokenRepository.save(new RefreshToken(refreshToken, expiresAtRefreshToken));
+        user.setToken(token);
+        userRepository.save(user);
+        String accessToken = jwtUtils.generateAccessTokenWithRole(user.getNickname(), user.getRole().toString());
+        return new TokensResponse(refreshToken, accessToken, jwtUtils.extractExpiresAt(accessToken).toEpochMilli());
     }
 }

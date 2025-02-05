@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ru.edu.filmportal.filters.FilterExceptionHandler;
 import ru.edu.filmportal.filters.JwtAuthenticationFilter;
 
@@ -35,7 +37,21 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(filterExceptionHandler, JwtAuthenticationFilter.class);
+                .addFilterBefore(filterExceptionHandler, JwtAuthenticationFilter.class)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
         return http.build();
+    }
+
+    @Bean
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://localhost:8222"); // Разрешаем доступ с другого сервера
+        configuration.addAllowedMethod("GET"); // Разрешаем только GET-метод
+        configuration.addAllowedHeader("*"); // Разрешаем все заголовки
+        configuration.setAllowCredentials(true); // Разрешаем отправку cookies
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/v3/api-docs", configuration); // Применяем CORS ко всем путям
+        return source;
     }
 }

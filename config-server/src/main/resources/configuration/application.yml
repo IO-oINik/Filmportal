@@ -1,0 +1,19 @@
+spring:
+  jackson:
+    date-format: dd-MM-yyyy HH:mm:ss
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    disable-swagger-default-url: true
+    path: /docs
+
+jwt:
+  secret-key: 8db33c717bfbeb5920de788bb8bd5173c3b1f6fb294e72a0fd45427be660e9a4

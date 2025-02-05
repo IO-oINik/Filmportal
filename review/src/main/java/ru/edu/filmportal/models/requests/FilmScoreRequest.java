@@ -5,8 +5,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 public record FilmScoreRequest(
-        @NotNull(message = "userID is required")
-        Long userId,
         @NotNull(message = "filmId is required")
         Long filmId,
         @NotNull(message = "score is required")

@@ -6,6 +6,8 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.security.Key;
+import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
@@ -15,7 +17,8 @@ import java.util.function.Function;
 public class JwtUtils {
     @Value("${jwt.secret-key}")
     private String SECRET_KEY;
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 часов
+    public static final long EXPIRATION_TIME_ACCESS_TOKEN = 1000 * 60; // 1 минута
+    public static final long EXPIRATION_TIME_REFRESH_TOKEN = 1000 * 60 * 60 * 24 * 7; // 7 дней
 
     public Optional<String> extractJwt(String authorizationHeader) {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -45,13 +48,30 @@ public class JwtUtils {
                 .getBody();
     }
 
-    public String generateToken(String username, Map<String, String> claims) {
+    public String generateAccessTokenWithRole(String username, String role) {
+        return generateAccessToken(username,  Collections.singletonMap("ROLE", role));
+    }
+
+    private String generateAccessToken(String username, Map<String, String> claims) {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_ACCESS_TOKEN))
                 .signWith(getSignInKey())
                 .claims(claims)
                 .compact();
+    }
+
+    public String generateRefreshToken(String username) {
+        return Jwts.builder()
+                .subject(username)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_REFRESH_TOKEN))
+                .signWith(getSignInKey())
+                .compact();
+    }
+
+    public Instant extractExpiresAt(String token) {
+        return extractClaim(token, Claims::getExpiration).toInstant();
     }
 }

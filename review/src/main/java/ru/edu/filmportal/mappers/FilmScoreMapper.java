@@ -8,10 +8,10 @@ import ru.edu.filmportal.models.responses.FilmScoreResponse;
 @Component
 public class FilmScoreMapper {
     public FilmScoreResponse toFilmScoreResponse(FilmScore filmScore) {
-        return new FilmScoreResponse(filmScore.getUserId(), filmScore.getFilmId(), filmScore.getScore());
+        return new FilmScoreResponse(filmScore.getId(), filmScore.getUserId(), filmScore.getFilmId(), filmScore.getScore());
     }
 
-    public FilmScore toFilmScore(FilmScoreRequest filmScoreRequest) {
-        return new FilmScore(filmScoreRequest.userId(), filmScoreRequest.filmId(), filmScoreRequest.score());
+    public FilmScore toFilmScore(FilmScoreRequest filmScoreRequest, long userId) {
+        return new FilmScore(userId, filmScoreRequest.filmId(), filmScoreRequest.score());
     }
 }

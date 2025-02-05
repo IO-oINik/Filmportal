@@ -3,8 +3,11 @@ package ru.edu.filmportal.services;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ru.edu.filmportal.exceptions.AuthException;
 import ru.edu.filmportal.mappers.UserMapper;
 import ru.edu.filmportal.models.database.Role;
 import ru.edu.filmportal.models.request.UserCreateRequest;
@@ -29,6 +32,17 @@ public class UserService {
         return userRepository.findById(userId)
                 .map(mapper::toUserResponse)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with the ID: " + userId));
+    }
+
+    public UserResponse findMe() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String nickname;
+        if (authentication != null) {
+            nickname = (String) authentication.getPrincipal();
+        } else {
+            throw new AuthException("Unauthorized");
+        }
+        return findByNickname(nickname);
     }
 
     public UserResponse findByNickname(String nickname) {

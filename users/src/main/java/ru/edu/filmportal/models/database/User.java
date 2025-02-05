@@ -7,11 +7,8 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -50,15 +47,8 @@ public class User {
     @LastModifiedDate
     private LocalDateTime dateOfModified;
 
-    @OneToOne(optional = true, fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "refresh_token_id", referencedColumnName = "id", foreignKey = @ForeignKey(ConstraintMode.CONSTRAINT))
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    private Token token;
-
-    public User(String name, String surname, String nickname, String email, String hashPassword) {
-        this.name = name;
-        this.surname = surname;
-        this.nickname = nickname;
-        this.email = email;
-        this.hashPassword = hashPassword;
-    }
+    private RefreshToken token;
 }
