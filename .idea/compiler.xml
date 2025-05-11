@@ -8,11 +8,20 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="config-server" />
-        <module name="review" />
         <module name="film" />
         <module name="eureka-server" />
+        <module name="review" />
         <module name="users" />
         <module name="gateway" />
+      </profile>
+      <profile name="Annotation profile for parser" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="parser" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -27,6 +36,7 @@
       <module name="eureka-server" options="-parameters" />
       <module name="film" options="-parameters" />
       <module name="gateway" options="-parameters" />
+      <module name="parser" options="-parameters" />
       <module name="review" options="-parameters" />
       <module name="ui" options="-parameters" />
       <module name="users" options="-parameters" />

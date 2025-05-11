@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: nikita
       POSTGRES_DB: users
     ports:
-      - 5433:5432
+      - "5433:5432"
     networks:
       - microservices-net
     restart: unless-stopped
@@ -20,7 +20,7 @@ services:
       POSTGRES_USER: nikita
       POSTGRES_PASSWORD: nikita
     ports:
-      - 5434:5432
+      - "5434:5432"
     networks:
       - microservices-net
     restart: unless-stopped
@@ -33,9 +33,16 @@ services:
       POSTGRES_USER: nikita
       POSTGRES_PASSWORD: nikita
     ports:
-      - 5435:5432
+      - "5435:5432"
     networks:
       - microservices-net
+    restart: unless-stopped
+
+  kafka:
+    container_name: kafka
+    image: apache/kafka
+    ports:
+      - "9092:9092"
     restart: unless-stopped
 
 

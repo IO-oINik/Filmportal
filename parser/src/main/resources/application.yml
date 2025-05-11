@@ -1,19 +1,8 @@
-server:
-  port: 8082
-
 spring:
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5434/films
-    username: nikita
-    password: nikita
-  jpa:
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: update
+  application:
+    name: parser-service
+  config:
+    import: optional:configserver:http://localhost:8888
   kafka:
     bootstrap-servers: localhost:9092
     producer:
@@ -23,3 +12,13 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: parser
+
+kafka:
+  topics:
+    topic-okko-url: okko-parse-url
+    topic-info-film: info-film
+
+selenium:
+  pool:
+    size: 3
+    path: D:\Java_projects\filmportal\chromedriver-win64\chromedriver.exe

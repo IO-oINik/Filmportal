@@ -12,6 +12,7 @@
         <option value="$PROJECT_DIR$/gateway/pom.xml" />
         <option value="$PROJECT_DIR$/ui/pom.xml" />
         <option value="$PROJECT_DIR$/demo/pom.xml" />
+        <option value="$PROJECT_DIR$/parser/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

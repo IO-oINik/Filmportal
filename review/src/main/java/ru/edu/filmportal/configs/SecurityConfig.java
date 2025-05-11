@@ -27,7 +27,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/docs", "/v3/api-docs", "/swagger-ui.html", "/swagger-ui/**", "/swagger-resources/**", "/webjars/**").permitAll()
                         .requestMatchers("/api/v1/film-score/**").permitAll()
-                        .anyRequest().permitAll())
+                        .requestMatchers("api/v1/film-score/create", "api/v1/film-score/{id}/delete").authenticated()
+                        .anyRequest().authenticated())
 
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -41,13 +42,13 @@ public class SecurityConfig {
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:8222"); // Разрешаем доступ с другого сервера
-        configuration.addAllowedMethod("GET"); // Разрешаем только GET-метод
-        configuration.addAllowedHeader("*"); // Разрешаем все заголовки
-        configuration.setAllowCredentials(true); // Разрешаем отправку cookies
+        configuration.addAllowedOrigin("http://localhost:8222");
+        configuration.addAllowedMethod("GET");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/v3/api-docs", configuration); // Применяем CORS ко всем путям
+        source.registerCorsConfiguration("/v3/api-docs", configuration);
         return source;
     }
 }

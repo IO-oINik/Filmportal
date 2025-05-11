@@ -31,7 +31,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/genre/all", "/api/v1/genre/{id}").permitAll()
                         .requestMatchers("/api/v1/country/all", "/api/v1/country/{id}").permitAll()
                         .requestMatchers("/api/v1/age-limit/all", "/api/v1/age-limit/{id}").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/api/v1/parse-info-film/**").permitAll()
+                        .anyRequest().hasAnyRole("ADMIN", "EDITOR"))
 
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
